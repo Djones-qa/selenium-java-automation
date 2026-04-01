@@ -1,6 +1,6 @@
 ﻿# Selenium Java Automation Framework
 
-![CI](https://github.com/Djones-qa/selenium-java-automation/actions/workflows/selenium-tests.yml/badge.svg)
+![CI](https://github.com/Djones-qa/selenium-java-automation/actions/workflows/test.yml/badge.svg)
 
 Enterprise-grade UI test automation framework for SauceDemo built with Selenium WebDriver, TestNG, Java 17, ExtentReports, and configuration management.
 
