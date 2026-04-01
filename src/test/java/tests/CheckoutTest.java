@@ -5,13 +5,14 @@ import org.testng.annotations.Test;
 import pages.LoginPage;
 import pages.InventoryPage;
 import pages.CheckoutPage;
+import utils.ConfigReader;
 
 public class CheckoutTest extends BaseTest {
 
     private void loginAsStandardUser() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigate();
-        loginPage.loginAndWaitForInventory("standard_user", "secret_sauce");
+        loginPage.loginAndWaitForInventory(ConfigReader.getStandardUser(), ConfigReader.getPassword());
     }
 
     @Test(groups = {"smoke"}, description = "Add product to cart updates cart count")

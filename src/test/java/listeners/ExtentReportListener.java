@@ -8,6 +8,7 @@ import com.aventstack.extentreports.reporter.configuration.Theme;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
+import utils.ConfigReader;
 
 public class ExtentReportListener implements ITestListener {
 
@@ -16,15 +17,15 @@ public class ExtentReportListener implements ITestListener {
 
     @Override
     public void onStart(ITestContext context) {
-        ExtentSparkReporter reporter = new ExtentSparkReporter("reports/ExtentReport.html");
+        ExtentSparkReporter reporter = new ExtentSparkReporter(ConfigReader.getReportPath());
         reporter.config().setTheme(Theme.DARK);
-        reporter.config().setDocumentTitle("Selenium Java Automation Report");
-        reporter.config().setReportName("SauceDemo Test Results");
+        reporter.config().setDocumentTitle(ConfigReader.getReportTitle());
+        reporter.config().setReportName(ConfigReader.getReportName());
         extent = new ExtentReports();
         extent.attachReporter(reporter);
         extent.setSystemInfo("Tester", "Darrius Jones");
-        extent.setSystemInfo("Environment", "SauceDemo");
-        extent.setSystemInfo("Browser", "Chrome Headless");
+        extent.setSystemInfo("Environment", ConfigReader.getBaseUrl());
+        extent.setSystemInfo("Browser", ConfigReader.getBrowser());
         extent.setSystemInfo("OS", System.getProperty("os.name"));
     }
 
@@ -53,7 +54,7 @@ public class ExtentReportListener implements ITestListener {
     @Override
     public void onFinish(ITestContext context) {
         extent.flush();
-        System.out.println("ExtentReport generated: reports/ExtentReport.html");
+        System.out.println("Report: " + ConfigReader.getReportPath());
     }
 
     public static ExtentTest getTest() {

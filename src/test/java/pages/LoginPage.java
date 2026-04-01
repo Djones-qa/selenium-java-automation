@@ -4,6 +4,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import utils.ConfigReader;
 
 public class LoginPage extends BasePage {
 
@@ -25,7 +26,7 @@ public class LoginPage extends BasePage {
     }
 
     public void navigate() {
-        driver.get("https://www.saucedemo.com");
+        driver.get(ConfigReader.getBaseUrl());
     }
 
     public void enterUsername(String username) {
