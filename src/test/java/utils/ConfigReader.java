@@ -1,31 +1,78 @@
 package utils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 public class ConfigReader {
 
-    private static final Properties props = new Properties();
+    private static Properties properties;
+    private static final String CONFIG_PATH = "src/test/resources/config.properties";
 
     static {
-        try (InputStream in = ConfigReader.class.getClassLoader()
-                .getResourceAsStream("config.properties")) {
-            if (in == null) throw new RuntimeException("config.properties not found on classpath");
-            props.load(in);
+        try {
+            FileInputStream fis = new FileInputStream(CONFIG_PATH);
+            properties = new Properties();
+            properties.load(fis);
+            fis.close();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load config.properties", e);
+            throw new RuntimeException("Failed to load config.properties: " + e.getMessage());
         }
     }
 
-    public static String getBaseUrl()       { return props.getProperty("base.url"); }
-    public static String getBrowser()       { return props.getProperty("browser", "chrome"); }
-    public static String getStandardUser()  { return props.getProperty("standard.user"); }
-    public static String getLockedUser()    { return props.getProperty("locked.user"); }
-    public static String getPassword()      { return props.getProperty("password"); }
-    public static boolean isHeadless()      { return Boolean.parseBoolean(props.getProperty("headless", "true")); }
-    public static int getExplicitWait()     { return Integer.parseInt(props.getProperty("explicit.wait", "10")); }
-    public static String getReportPath()    { return props.getProperty("report.path", "reports/ExtentReport.html"); }
-    public static String getReportTitle()   { return props.getProperty("report.title", "Test Report"); }
-    public static String getReportName()    { return props.getProperty("report.name", "Test Results"); }
+    public static String getBaseUrl() {
+        return properties.getProperty("base.url");
+    }
+
+    public static String getBrowser() {
+        return properties.getProperty("browser", "chrome");
+    }
+
+    public static boolean isHeadless() {
+        return Boolean.parseBoolean(properties.getProperty("headless", "true"));
+    }
+
+    public static String getStandardUser() {
+        return properties.getProperty("standard.user");
+    }
+
+    public static String getLockedUser() {
+        return properties.getProperty("locked.user");
+    }
+
+    public static String getPassword() {
+        return properties.getProperty("password");
+    }
+
+    public static int getImplicitWait() {
+        return Integer.parseInt(properties.getProperty("implicit.wait", "10"));
+    }
+
+    public static int getExplicitWait() {
+        return Integer.parseInt(properties.getProperty("explicit.wait", "10"));
+    }
+
+    public static int getPageLoadTimeout() {
+        return Integer.parseInt(properties.getProperty("page.load.timeout", "30"));
+    }
+
+    public static String getReportPath() {
+        return properties.getProperty("report.path", "reports/ExtentReport.html");
+    }
+
+    public static String getReportTitle() {
+        return properties.getProperty("report.title", "Automation Report");
+    }
+
+    public static String getReportName() {
+        return properties.getProperty("report.name", "Test Results");
+    }
+
+    public static String getScreenshotDir() {
+        return properties.getProperty("screenshot.dir", "reports/screenshots/");
+    }
+
+    public static boolean isScreenshotOnFailure() {
+        return Boolean.parseBoolean(properties.getProperty("screenshot.on.failure", "true"));
+    }
 }

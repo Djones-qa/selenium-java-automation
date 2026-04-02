@@ -2,9 +2,10 @@
 
 ![CI](https://github.com/Djones-qa/selenium-java-automation/actions/workflows/test.yml/badge.svg)
 
-Enterprise-grade UI test automation framework for SauceDemo built with Selenium WebDriver, TestNG, Java 17, ExtentReports, and configuration management.
+UI test automation framework for [SauceDemo](https://www.saucedemo.com) built with Selenium WebDriver, TestNG, Java 17, ExtentReports, and configuration management.
 
 ## Tech Stack
+
 - Java 17
 - Selenium WebDriver 4.18.1
 - TestNG 7.9.0
@@ -14,60 +15,77 @@ Enterprise-grade UI test automation framework for SauceDemo built with Selenium 
 - GitHub Actions CI
 
 ## Project Structure
-`
-selenium-java-automation/
-├── src/test/java/
-│   ├── pages/
-│   │   ├── BasePage.java          # Shared WebDriver helpers and explicit waits
-│   │   ├── LoginPage.java         # Login page interactions
-│   │   ├── InventoryPage.java     # Product listing, add to cart, sort
-│   │   └── CheckoutPage.java      # Cart and checkout flow
-│   ├── tests/
-│   │   ├── BaseTest.java          # ChromeDriver setup/teardown with ConfigReader
-│   │   ├── LoginTest.java         # Login test cases
-│   │   └── CheckoutTest.java      # Cart and checkout test cases
-│   ├── listeners/
-│   │   └── ExtentReportListener.java  # TestNG listener for HTML reporting
-│   └── utils/
-│       └── ConfigReader.java      # Properties file configuration manager
-├── src/test/resources/
-│   ├── config.properties          # Externalized test configuration
-│   └── testng.xml                 # TestNG suite configuration
-├── reports/
-│   └── ExtentReport.html          # Generated HTML test report
-└── .github/workflows/
-    └── selenium-tests.yml         # GitHub Actions CI pipeline
-`
 
-## Configuration Management
-All test configuration externalized in config.properties:
-- Base URL
-- Browser and headless mode
-- Test credentials
-- Timeouts
-- Report settings
+```
+src/test/java/
+├── pages/
+│   ├── BasePage.java              # Shared WebDriver helpers and explicit waits
+│   ├── LoginPage.java             # Login page interactions
+│   ├── InventoryPage.java         # Product listing, add to cart, sort
+│   └── CheckoutPage.java          # Cart and checkout flow
+├── tests/
+│   ├── BaseTest.java              # ChromeDriver setup/teardown via ConfigReader
+│   ├── LoginTest.java             # Login test cases
+│   └── CheckoutTest.java          # Cart and checkout test cases
+├── listeners/
+│   └── ExtentReportListener.java  # TestNG listener — HTML report + failure screenshots
+└── utils/
+    ├── ConfigReader.java          # Loads config.properties
+    └── ScreenshotUtils.java       # Captures PNG on test failure
+
+src/test/resources/
+├── config.properties              # Externalized configuration
+└── testng.xml                     # TestNG suite definition
+```
+
+## Configuration
+
+All settings live in `src/test/resources/config.properties`:
+
+```properties
+base.url=https://www.saucedemo.com
+browser=chrome
+headless=true
+standard.user=standard_user
+password=secret_sauce
+explicit.wait=10
+report.path=reports/ExtentReport.html
+```
 
 ## Test Coverage (9 tests)
 
-### Login Tests (4 tests)
+### Login Tests
 - Valid login redirects to inventory page
 - Invalid credentials shows error message
 - Locked out user sees error message
 - Empty credentials shows error
 
-### Checkout Tests (5 tests)
+### Checkout Tests
 - Add product to cart updates cart count
 - Add multiple products updates cart count
-- Complete full checkout journey end to end
+- Complete full checkout journey (end-to-end)
 - Sort products by price low to high
 - Sort products by name A to Z
 
-## Run Tests
-`ash
-mvn test
-`
+## Reporting
 
-Tests run headless by default. ExtentReport generated at reports/ExtentReport.html
+After each run, an HTML report is generated at `reports/ExtentReport.html` with:
+- Pass/fail status per test
+- Failure screenshots automatically captured and embedded
+- System info (OS, browser, environment)
+
+## Running the Tests
+
+```bash
+mvn clean test
+```
+
+## Prerequisites
+
+- Java 17+
+- Maven 3.6+
+- Google Chrome (WebDriverManager handles the driver automatically)
 
 ## Author
-Darrius Jones - github.com/Djones-qa
+
+Darrius Jones — [github.com/Djones-qa](https://github.com/Djones-qa)

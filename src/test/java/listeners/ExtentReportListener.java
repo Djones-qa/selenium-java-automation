@@ -5,10 +5,12 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
+import org.openqa.selenium.WebDriver;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 import utils.ConfigReader;
+import utils.ScreenshotUtils;
 
 public class ExtentReportListener implements ITestListener {
 
@@ -44,6 +46,27 @@ public class ExtentReportListener implements ITestListener {
     @Override
     public void onTestFailure(ITestResult result) {
         test.get().log(Status.FAIL, "Test failed: " + result.getThrowable().getMessage());
+
+        Object testInstance = result.getInstance();
+        WebDriver driver = null;
+
+        try {
+            driver = (WebDriver) testInstance.getClass().getDeclaredField("driver").get(testInstance);
+        } catch (Exception e) {
+            test.get().log(Status.WARNING, "Could not get driver for screenshot: " + e.getMessage());
+        }
+
+        if (driver != null) {
+            String screenshotPath = ScreenshotUtils.captureScreenshot(driver, result.getMethod().getMethodName());
+            if (screenshotPath != null) {
+                try {
+                    test.get().addScreenCaptureFromPath(screenshotPath, "Failure Screenshot");
+                    test.get().log(Status.INFO, "Screenshot captured: " + screenshotPath);
+                } catch (Exception e) {
+                    test.get().log(Status.WARNING, "Could not attach screenshot: " + e.getMessage());
+                }
+            }
+        }
     }
 
     @Override
