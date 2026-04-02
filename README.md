@@ -2,13 +2,13 @@
 
 ![CI](https://github.com/Djones-qa/selenium-java-automation/actions/workflows/test.yml/badge.svg)
 
-UI test automation framework for [SauceDemo](https://www.saucedemo.com) built with Selenium WebDriver, TestNG, Java 17, ExtentReports, Log4j2, and configuration management.
+UI test automation framework for [SauceDemo](https://www.saucedemo.com) built with Selenium WebDriver, TestNG, Java 17, ExtentReports, Log4j2, parallel execution, and configuration management.
 
 ## Tech Stack
 
 - Java 17
 - Selenium WebDriver 4.18.1
-- TestNG 7.9.0
+- TestNG 7.9.0 (parallel execution)
 - WebDriverManager 5.7.0
 - ExtentReports 5.1.1
 - Log4j2 2.23.1
@@ -25,7 +25,7 @@ src/test/java/
 │   ├── InventoryPage.java         # Product listing, add to cart, sort
 │   └── CheckoutPage.java          # Cart and checkout flow
 ├── tests/
-│   ├── BaseTest.java              # ChromeDriver setup/teardown via ConfigReader
+│   ├── BaseTest.java              # ThreadLocal WebDriver, setup/teardown
 │   ├── LoginTest.java             # Login test cases
 │   └── CheckoutTest.java          # Cart and checkout test cases
 ├── listeners/
@@ -38,7 +38,15 @@ src/test/java/
 src/test/resources/
 ├── config.properties              # Externalized configuration
 ├── log4j2.xml                     # Log4j2 configuration
-└── testng.xml                     # TestNG suite definition
+└── testng.xml                     # TestNG suite — parallel methods, 2 threads
+```
+
+## Parallel Execution
+
+Tests run in parallel at the method level using TestNG's `parallel="methods"` with 2 threads. Thread safety is ensured via `ThreadLocal<WebDriver>` in `BaseTest` — each thread gets its own isolated browser instance.
+
+```xml
+<suite name="SauceDemo Test Suite" parallel="methods" thread-count="2">
 ```
 
 ## Configuration
@@ -52,15 +60,15 @@ headless=true
 standard.user=standard_user
 password=secret_sauce
 explicit.wait=10
+thread.count=2
+parallel.mode=methods
+screenshot.on.failure=true
 report.path=reports/ExtentReport.html
 ```
 
 ## Logging
 
-Log4j2 outputs to both console and `reports/automation.log`. Each test logs:
-- Browser setup and teardown
-- Navigation and actions
-- Pass/fail result with clear markers
+Log4j2 outputs to both console and `reports/automation.log`. Each test logs browser setup, navigation, actions, and pass/fail result.
 
 ## Test Coverage (9 tests)
 

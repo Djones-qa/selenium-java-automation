@@ -16,22 +16,30 @@ import utils.ScreenshotUtils;
 public class ExtentReportListener implements ITestListener {
 
     private static ExtentReports extent;
-    private static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
+    private static final ThreadLocal<ExtentTest> test = new ThreadLocal<>();
+    private static final Object lock = new Object();
+
+    private static void initExtent() {
+        synchronized (lock) {
+            if (extent == null) {
+                ExtentSparkReporter reporter = new ExtentSparkReporter(ConfigReader.getReportPath());
+                reporter.config().setTheme(Theme.DARK);
+                reporter.config().setDocumentTitle(ConfigReader.getReportTitle());
+                reporter.config().setReportName(ConfigReader.getReportName());
+                extent = new ExtentReports();
+                extent.attachReporter(reporter);
+                extent.setSystemInfo("Tester", "Darrius Jones");
+                extent.setSystemInfo("Environment", ConfigReader.getBaseUrl());
+                extent.setSystemInfo("Browser", ConfigReader.getBrowser());
+                extent.setSystemInfo("OS", System.getProperty("os.name"));
+                LogUtils.info("ExtentReports initialized");
+            }
+        }
+    }
 
     @Override
     public void onStart(ITestContext context) {
-        LogUtils.info("Initializing ExtentReports...");
-        ExtentSparkReporter reporter = new ExtentSparkReporter(ConfigReader.getReportPath());
-        reporter.config().setTheme(Theme.DARK);
-        reporter.config().setDocumentTitle(ConfigReader.getReportTitle());
-        reporter.config().setReportName(ConfigReader.getReportName());
-        extent = new ExtentReports();
-        extent.attachReporter(reporter);
-        extent.setSystemInfo("Tester", "Darrius Jones");
-        extent.setSystemInfo("Environment", ConfigReader.getBaseUrl());
-        extent.setSystemInfo("Browser", ConfigReader.getBrowser());
-        extent.setSystemInfo("OS", System.getProperty("os.name"));
-        LogUtils.info("ExtentReports initialized successfully");
+        initExtent();
     }
 
     @Override
@@ -54,25 +62,17 @@ public class ExtentReportListener implements ITestListener {
         LogUtils.error("Failure reason: " + result.getThrowable().getMessage());
         test.get().log(Status.FAIL, "Test failed: " + result.getThrowable().getMessage());
 
-        Object testInstance = result.getInstance();
-        WebDriver driver = null;
-
         try {
-            driver = (WebDriver) testInstance.getClass().getDeclaredField("driver").get(testInstance);
-        } catch (Exception e) {
-            LogUtils.error("Could not get driver for screenshot", e);
-        }
-
-        if (driver != null && ConfigReader.isScreenshotOnFailure()) {
-            String screenshotPath = ScreenshotUtils.captureScreenshot(driver, result.getMethod().getMethodName());
-            if (screenshotPath != null) {
-                try {
-                    test.get().addScreenCaptureFromPath(screenshotPath, "Failure Screenshot");
-                    LogUtils.info("Screenshot attached to report: " + screenshotPath);
-                } catch (Exception e) {
-                    LogUtils.error("Could not attach screenshot", e);
+            WebDriver driver = tests.BaseTest.getDriver();
+            if (driver != null && ConfigReader.isScreenshotOnFailure()) {
+                String path = ScreenshotUtils.captureScreenshot(driver, result.getMethod().getMethodName());
+                if (path != null) {
+                    test.get().addScreenCaptureFromPath(path, "Failure Screenshot");
+                    LogUtils.info("Screenshot attached: " + path);
                 }
             }
+        } catch (Exception e) {
+            LogUtils.error("Could not capture screenshot", e);
         }
     }
 
@@ -85,10 +85,10 @@ public class ExtentReportListener implements ITestListener {
     @Override
     public void onFinish(ITestContext context) {
         extent.flush();
-        LogUtils.info("ExtentReport generated: " + ConfigReader.getReportPath());
-        LogUtils.info("Tests passed: " + context.getPassedTests().size());
-        LogUtils.info("Tests failed: " + context.getFailedTests().size());
-        LogUtils.info("Tests skipped: " + context.getSkippedTests().size());
+        LogUtils.info("Report: " + ConfigReader.getReportPath());
+        LogUtils.info("Passed: " + context.getPassedTests().size()
+                + " | Failed: " + context.getFailedTests().size()
+                + " | Skipped: " + context.getSkippedTests().size());
     }
 
     public static ExtentTest getTest() {

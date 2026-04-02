@@ -13,27 +13,22 @@ import java.util.Date;
 
 public class ScreenshotUtils {
 
-    private static final String SCREENSHOT_DIR = "reports/screenshots/";
-
     public static String captureScreenshot(WebDriver driver, String testName) {
+        String screenshotDir = ConfigReader.getScreenshotDir();
         try {
-            File screenshotDir = new File(SCREENSHOT_DIR);
-            if (!screenshotDir.exists()) {
-                screenshotDir.mkdirs();
-            }
+            File dir = new File(screenshotDir);
+            if (!dir.exists()) dir.mkdirs();
 
             String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String fileName = testName + "_" + timestamp + ".png";
-            String filePath = SCREENSHOT_DIR + fileName;
+            String filePath = screenshotDir + testName + "_" + timestamp + ".png";
 
             File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
             Files.copy(screenshot.toPath(), Paths.get(filePath));
-
-            System.out.println("Screenshot saved: " + filePath);
+            LogUtils.info("Screenshot saved: " + filePath);
             return filePath;
 
         } catch (IOException e) {
-            System.out.println("Failed to capture screenshot: " + e.getMessage());
+            LogUtils.error("Failed to capture screenshot: " + e.getMessage());
             return null;
         }
     }
