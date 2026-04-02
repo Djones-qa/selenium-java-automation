@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/Djones-qa/selenium-java-automation/actions/workflows/test.yml/badge.svg)
 
-UI test automation framework for [SauceDemo](https://www.saucedemo.com) built with Selenium WebDriver, TestNG, Java 17, ExtentReports, and configuration management.
+UI test automation framework for [SauceDemo](https://www.saucedemo.com) built with Selenium WebDriver, TestNG, Java 17, ExtentReports, Log4j2, and configuration management.
 
 ## Tech Stack
 
@@ -11,6 +11,7 @@ UI test automation framework for [SauceDemo](https://www.saucedemo.com) built wi
 - TestNG 7.9.0
 - WebDriverManager 5.7.0
 - ExtentReports 5.1.1
+- Log4j2 2.23.1
 - Maven
 - GitHub Actions CI
 
@@ -31,10 +32,12 @@ src/test/java/
 │   └── ExtentReportListener.java  # TestNG listener — HTML report + failure screenshots
 └── utils/
     ├── ConfigReader.java          # Loads config.properties
-    └── ScreenshotUtils.java       # Captures PNG on test failure
+    ├── ScreenshotUtils.java       # Captures PNG on test failure
+    └── LogUtils.java              # Log4j2 wrapper for structured logging
 
 src/test/resources/
 ├── config.properties              # Externalized configuration
+├── log4j2.xml                     # Log4j2 configuration
 └── testng.xml                     # TestNG suite definition
 ```
 
@@ -51,6 +54,13 @@ password=secret_sauce
 explicit.wait=10
 report.path=reports/ExtentReport.html
 ```
+
+## Logging
+
+Log4j2 outputs to both console and `reports/automation.log`. Each test logs:
+- Browser setup and teardown
+- Navigation and actions
+- Pass/fail result with clear markers
 
 ## Test Coverage (9 tests)
 
